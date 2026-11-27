@@ -4,8 +4,8 @@ Self-hosted Discord bot. It creates a forum channel, files each new forum post a
 
 ## Stack
 
-- Language and runtime: TypeScript run directly by Node.js 24+ (type stripping, no build step), pnpm.
-- Framework and key libraries: discord.js 14, `@anthropic-ai/sdk` (structured outputs via `betaZodOutputFormat`), zod for env and AI output validation, `node:sqlite` for storage. GitHub is called through `fetch`, with no Octokit.
+- Language and runtime: TypeScript run directly by Node.js 24+ or Bun 1.3+ (no build step), pnpm.
+- Framework and key libraries: discord.js 14, `@anthropic-ai/sdk` (structured outputs via `betaZodOutputFormat`), zod for env and AI output validation, the runtime's built-in SQLite (`node:sqlite` or `bun:sqlite`) for storage. GitHub is called through `fetch`, with no Octokit.
 
 ## Commands
 
@@ -16,7 +16,10 @@ pnpm start        # Run once (reads .env)
 pnpm typecheck    # tsc --noEmit
 pnpm lint         # Biome check
 pnpm format       # Biome check --write
-pnpm test         # Vitest
+pnpm test         # Vitest on Node
+pnpm test:bun     # Vitest on Bun
+bun run dev:bun   # Run with --watch on Bun (Bun loads .env itself)
+bun run start:bun # Run once on Bun
 ```
 
 ## Where things live
@@ -35,6 +38,7 @@ pnpm test         # Vitest
 ## Conventions and gotchas
 
 - Imports use explicit `.ts` extensions, and `tsconfig.json` sets `erasableSyntaxOnly`. No enums, namespaces, or constructor parameter properties, because Node strips types without transforming code.
+- Ferry must run on both Node and Bun. Only `src/db.ts` touches SQLite: it loads `node:sqlite` or `bun:sqlite` at runtime through `require`, because a static import of either one fails on the other runtime. Avoid other runtime-specific APIs (`Bun.*`, `node:sqlite` elsewhere) and run `pnpm test:bun` when you touch storage.
 - Run all user text that goes to GitHub through `neutralizeMentions`, so Discord users cannot trigger GitHub @mention notifications.
 - Every Discord message Ferry sends spreads `NO_PINGS`, so issue titles cannot ping @everyone or roles.
 - Discord rejects tag edits on archived threads. Call `reopenThread` before `updateTags`, then `closeThread`.

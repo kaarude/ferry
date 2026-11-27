@@ -12,7 +12,7 @@ Search existing issues and pull requests first to avoid duplicates.
 
 ## Local setup
 
-Prerequisites: Node.js 24 or newer, pnpm, a Discord bot token, and a GitHub token for a test repo. The README's [Getting started](./README.md#getting-started) section walks through creating both tokens.
+Prerequisites: Node.js 24 or newer with pnpm (Bun 1.3 or newer also works for running the bot), a Discord bot token, and a GitHub token for a test repo. The README's [Getting started](./README.md#getting-started) section walks through creating both tokens.
 
 ```bash
 pnpm install
@@ -31,6 +31,7 @@ Run checks before opening a pull request:
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm test:bun   # if you touched src/db.ts or anything runtime-specific
 ```
 
 CI runs the same three checks on every pull request. Fix any failure before asking for review.

@@ -1,9 +1,42 @@
 import { mkdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname } from "node:path";
-import { DatabaseSync } from "node:sqlite";
 
 // Ferry stores two things: each server's setup, and which Discord thread
-// belongs to which GitHub issue. Node's built-in SQLite is enough for that.
+// belongs to which GitHub issue. Both Node and Bun ship SQLite built in, so
+// there is no database dependency to install.
+
+type SqlValue = string | number | null;
+
+/** The part of the SQLite API that node:sqlite and bun:sqlite share. */
+type SqlDatabase = {
+  exec(sql: string): void;
+  prepare(sql: string): {
+    get(...params: SqlValue[]): unknown;
+    all(...params: SqlValue[]): unknown[];
+    run(...params: SqlValue[]): unknown;
+  };
+  close(): void;
+};
+
+const require = createRequire(import.meta.url);
+
+/**
+ * Picks the runtime's built-in driver. Loaded with require at runtime because
+ * a static import of "node:sqlite" fails to resolve under Bun, and the other
+ * way around for "bun:sqlite".
+ */
+function openDatabase(path: string): SqlDatabase {
+  if (process.versions.bun) {
+    const { Database } = require("bun:sqlite") as {
+      Database: new (path: string) => SqlDatabase;
+    };
+    return new Database(path);
+  }
+  const { DatabaseSync } =
+    require("node:sqlite") as typeof import("node:sqlite");
+  return new DatabaseSync(path);
+}
 
 /** Forum tag IDs Ferry created during /ferry setup. */
 export type ForumTags = {
@@ -74,7 +107,7 @@ export type Store = ReturnType<typeof openStore>;
 /** Opens (or creates) the database. Pass ":memory:" in tests. */
 export function openStore(path: string) {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
-  const db = new DatabaseSync(path);
+  const db = openDatabase(path);
   db.exec(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS guilds (
