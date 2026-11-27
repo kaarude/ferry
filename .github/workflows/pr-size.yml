@@ -1,0 +1,67 @@
+name: PR size
+
+# Security note: pull_request_target runs in the base repository context with
+# write permissions so fork PRs can be labeled. Checking out or running untrusted
+# PR code under pull_request_target is a known privilege-escalation vulnerability.
+# This job intentionally never runs actions/checkout and only reads numeric PR
+# metadata (additions and deletions) from the GitHub API.
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply PR size label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number,
+            });
+
+            const lines = (pr.additions || 0) + (pr.deletions || 0);
+            let target = "size:XXL";
+            if (lines <= 9) target = "size:XS";
+            else if (lines <= 29) target = "size:S";
+            else if (lines <= 99) target = "size:M";
+            else if (lines <= 499) target = "size:L";
+            else if (lines <= 999) target = "size:XL";
+
+            const currentSizeLabels = pr.labels
+              .map((label) => label.name)
+              .filter((name) => name.startsWith("size:"));
+
+            for (const label of currentSizeLabels) {
+              if (label !== target) {
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: pull_number,
+                  name: label,
+                });
+              }
+            }
+
+            if (!currentSizeLabels.includes(target)) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: pull_number,
+                labels: [target],
+              });
+            }
+
+            core.info(`PR #${pull_number}: ${lines} changed lines -> ${target}`);

@@ -41,6 +41,14 @@ jobs:
               { name: "in-progress", color: "1d76db", description: "Work is actively underway." },
               { name: "blocked", color: "cc317c", description: "Waiting on another issue, decision, or external dependency." },
               { name: "good first issue", color: "7057ff", description: "Good entry point for first-time contributors." },
+
+              // PR size (applied by pr-size.yml)
+              { name: "size:XS", color: "0e8a16", description: "Pull request changing 0 to 9 lines." },
+              { name: "size:S", color: "5ebd3e", description: "Pull request changing 10 to 29 lines." },
+              { name: "size:M", color: "fbca04", description: "Pull request changing 30 to 99 lines." },
+              { name: "size:L", color: "fe7d37", description: "Pull request changing 100 to 499 lines." },
+              { name: "size:XL", color: "d93f0b", description: "Pull request changing 500 to 999 lines." },
+              { name: "size:XXL", color: "b60205", description: "Pull request changing 1000 or more lines." },
             ];
 
             const { owner, repo } = context.repo;

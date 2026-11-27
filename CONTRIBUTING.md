@@ -33,6 +33,8 @@ pnpm lint
 pnpm test
 ```
 
+CI runs the same three checks on every pull request. Fix any failure before asking for review.
+
 ## Pull request guidelines
 
 - Keep each pull request focused on one problem or feature. Put unrelated cleanup in its own PR.

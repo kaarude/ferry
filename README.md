@@ -124,7 +124,7 @@ Node runs the TypeScript in `src/` directly, so there is no build step. [AGENTS.
 
 ## Contributing
 
-Bug reports and pull requests are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before you open a PR, and report security issues privately as described in [SECURITY.md](./SECURITY.md).
+Bug reports and pull requests are welcome, and setup questions go in [Discussions](https://github.com/kaarude/ferry/discussions). Read [CONTRIBUTING.md](./CONTRIBUTING.md) before you open a PR, and report security issues privately as described in [SECURITY.md](./SECURITY.md).
 
 ## License
 
