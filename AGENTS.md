@@ -40,4 +40,6 @@ pnpm test         # Vitest
 - Discord rejects tag edits on archived threads. Call `reopenThread` before `updateTags`, then `closeThread`.
 - Report status is `open`, `closed`, or `merged`. Merged rows point at another thread's issue and are skipped by the poller (`findOwnerThread`).
 - The AI check must never block filing. `DuplicateFinder.find` returns null on any error or refusal.
+- Git worktrees live in `.worktrees/`. Biome (`!!.worktrees` in `biome.json`) and Vitest (`--dir src`) skip that folder, so checks in the main checkout only cover the main checkout. Keep it that way when touching either config.
+- CI (`.github/workflows/ci.yml`) runs `pnpm typecheck`, `pnpm lint`, and `pnpm test` on Node 24 for every PR.
 - Never use em dashes in code, comments, or docs.
