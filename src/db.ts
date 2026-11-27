@@ -8,7 +8,11 @@ import { dirname } from "node:path";
 
 type SqlValue = string | number | null;
 
-/** The part of the SQLite API that node:sqlite and bun:sqlite share. */
+/**
+ * The part of the SQLite API that node:sqlite and bun:sqlite share. The
+ * compiler checks the Node driver against it. The Bun driver is an unchecked
+ * cast below, so run `pnpm test:bun` after adding anything here.
+ */
 type SqlDatabase = {
   exec(sql: string): void;
   prepare(sql: string): {

@@ -21,4 +21,3 @@ coverage/
 
 # pnpm-lock.yaml is the lockfile. Ignore the one `bun install` writes.
 bun.lock
-bun.lockb

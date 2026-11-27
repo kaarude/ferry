@@ -70,7 +70,9 @@ Then start it with the runtime you have:
 | Bun            | `bun install` then `bun run start:bun` |
 | Docker         | `docker compose up -d`                 |
 
-Bun reads `.env` on its own, and Node gets it through the `--env-file-if-exists` flag in the `start` script. Both use the same database file, so you can switch runtimes later without losing anything.
+Node reads only `.env`, through the `--env-file-if-exists` flag in the `start` script. Bun reads `.env` on its own, and also `.env.local` if you have one. Both runtimes use the same SQLite file, so you can switch later without losing anything, as long as `DATABASE_PATH` stays the same.
+
+`pnpm install` uses the tested versions in `pnpm-lock.yaml`. Bun 1.3 can't read that lockfile, so `bun install` picks its own versions of indirect dependencies. Ferry's direct dependencies are pinned exactly, so this rarely matters, but if something breaks only on Bun, mention it in your bug report.
 
 ### 4. Connect your server
 
@@ -120,7 +122,7 @@ One Ferry process can serve several Discord servers. Each server links its own r
 ```bash
 pnpm dev         # restart on file changes (bun run dev:bun for Bun)
 pnpm test        # Vitest on Node
-pnpm test:bun    # the same tests on Bun
+pnpm test:bun    # the same tests on Bun (bun run test:bun works too)
 pnpm typecheck   # tsc
 pnpm lint        # Biome
 ```
