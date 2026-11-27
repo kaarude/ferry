@@ -1,0 +1,20 @@
+node_modules/
+*.log
+
+.env
+.env.*
+!.env.example
+
+# Local SQLite database (see DATABASE_PATH)
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+.DS_Store
+.vscode/
+.idea/
+coverage/
+
+.worktrees/

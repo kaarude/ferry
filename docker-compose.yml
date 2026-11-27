@@ -1,0 +1,12 @@
+services:
+  ferry:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_PATH: /app/data/ferry.db
+    volumes:
+      - ferry-data:/app/data
+
+volumes:
+  ferry-data:

@@ -1,0 +1,83 @@
+name: Sync labels
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/sync-labels.yml"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync repository labels
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            // Single source of truth for repo labels.
+            // Existing labels not listed here are left untouched (never deleted).
+            const labels = [
+              // Type
+              { name: "bug", color: "d73a4a", description: "Something is broken or behaving incorrectly." },
+              { name: "enhancement", color: "a2eeef", description: "Requested improvement or new capability." },
+              { name: "documentation", color: "0075ca", description: "Improvements or additions to documentation." },
+              { name: "chore", color: "cfd3d7", description: "Maintenance, refactors, or tooling changes." },
+              { name: "security", color: "e11d48", description: "Security vulnerability, hardening, or audit item." },
+              { name: "dependencies", color: "0366d6", description: "Pull requests or issues updating dependencies." },
+
+              // Triage
+              { name: "needs-triage", color: "fbca04", description: "Maintainer needs to evaluate this issue." },
+              { name: "needs-info", color: "d876e3", description: "Waiting on the reporter for more information." },
+              { name: "ready-for-agent", color: "0e8a16", description: "Fully specified and ready for an agent to implement." },
+              { name: "ready-for-human", color: "006b75", description: "Scoped and ready for human implementation." },
+              { name: "wontfix", color: "ffffff", description: "Will not be actioned." },
+
+              // Status
+              { name: "in-progress", color: "1d76db", description: "Work is actively underway." },
+              { name: "blocked", color: "cc317c", description: "Waiting on another issue, decision, or external dependency." },
+              { name: "good first issue", color: "7057ff", description: "Good entry point for first-time contributors." },
+            ];
+
+            const { owner, repo } = context.repo;
+            const existing = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner,
+              repo,
+              per_page: 100,
+            });
+            const byLowerName = new Map(existing.map((label) => [label.name.toLowerCase(), label]));
+
+            let created = 0;
+            let updated = 0;
+            let unchanged = 0;
+
+            for (const desired of labels) {
+              const current = byLowerName.get(desired.name.toLowerCase());
+              if (!current) {
+                await github.rest.issues.createLabel({ owner, repo, ...desired });
+                created += 1;
+                continue;
+              }
+              const sameName = current.name === desired.name;
+              const sameColor = current.color.toLowerCase() === desired.color.toLowerCase();
+              const sameDescription = (current.description || "") === desired.description;
+              if (sameName && sameColor && sameDescription) {
+                unchanged += 1;
+                continue;
+              }
+              await github.rest.issues.updateLabel({
+                owner,
+                repo,
+                name: current.name,
+                new_name: desired.name,
+                color: desired.color,
+                description: desired.description,
+              });
+              updated += 1;
+            }
+
+            core.info(`Labels synced: ${created} created, ${updated} updated, ${unchanged} unchanged.`);
