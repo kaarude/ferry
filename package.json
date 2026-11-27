@@ -6,14 +6,18 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": ">=24",
+    "bun": ">=1.3"
   },
   "packageManager": "pnpm@12.3.4",
   "scripts": {
     "dev": "node --env-file-if-exists=.env --watch src/index.ts",
     "start": "node --env-file-if-exists=.env src/index.ts",
+    "dev:bun": "bun --watch src/index.ts",
+    "start:bun": "bun src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --dir src",
+    "test:bun": "bun --bun vitest run --dir src",
     "lint": "biome check .",
     "format": "biome check --write ."
   },

@@ -27,11 +27,11 @@ Your community already reports problems in Discord, and your work happens in Git
 - **Duplicate merging (optional).** Claude compares a new post with up to 100 open issues. On a confident match Ferry comments on the existing issue and closes the thread. The reporter can press **Not a duplicate** to file it anyway.
 - **Status sync without webhooks.** Ferry polls GitHub every 5 minutes, so it runs behind a home router or on a laptop with no public URL. Closed issues lock their thread, and reopened issues unlock it.
 - **Discord's own permissions.** Admin commands need Manage Server and triage commands need Manage Threads. You can change either per role or channel in Server Settings > Integrations > Ferry.
-- **No database server.** State lives in one SQLite file through Node's built-in `node:sqlite`.
+- **No database server.** State lives in one SQLite file, using the SQLite driver built into Node (`node:sqlite`) or Bun (`bun:sqlite`).
 
 ## Getting started
 
-You need Node.js 24 or newer and pnpm, or Docker.
+You need one of these: Node.js 24 or newer with pnpm, Bun 1.3 or newer, or Docker.
 
 ### 1. Create the Discord bot
 
@@ -54,19 +54,25 @@ Ferry creates issues as the token's owner. That account needs write access to th
 
 ### 3. Run Ferry
 
+Clone the repo and fill in the two required tokens:
+
 ```bash
 git clone https://github.com/kaarude/ferry.git
 cd ferry
-pnpm install
 cp .env.example .env   # then fill in DISCORD_TOKEN and GITHUB_TOKEN
-pnpm start
 ```
 
-Or with Docker, after filling in `.env`:
+Then start it with the runtime you have:
 
-```bash
-docker compose up -d
-```
+| Runtime        | Commands                               |
+| -------------- | -------------------------------------- |
+| Node.js + pnpm | `pnpm install` then `pnpm start`       |
+| Bun            | `bun install` then `bun run start:bun` |
+| Docker         | `docker compose up -d`                 |
+
+Node reads only `.env`, through the `--env-file-if-exists` flag in the `start` script. Bun reads `.env` on its own, plus `.env.local` and `.env.production` (or whatever matches `NODE_ENV`) if they exist. Both runtimes use the same SQLite file, so you can switch later without losing anything. Before you switch, check that `DATABASE_PATH` still points at the same file.
+
+`pnpm install` uses the tested versions in `pnpm-lock.yaml`. Bun 1.3.14 doesn't read Ferry's lockfile, so `bun install` picks its own versions of indirect dependencies. Ferry's direct dependencies are pinned exactly, so this rarely matters. For the exact tested versions on Bun, run `pnpm install --frozen-lockfile` and then `bun run start:bun`.
 
 ### 4. Connect your server
 
@@ -114,13 +120,14 @@ One Ferry process can serve several Discord servers. Each server links its own r
 ## Development
 
 ```bash
-pnpm dev         # restart on file changes
-pnpm test        # Vitest
+pnpm dev         # restart on file changes (bun run dev:bun for Bun)
+pnpm test        # Vitest on Node
+pnpm test:bun    # the same tests on Bun (bun run test:bun works too)
 pnpm typecheck   # tsc
 pnpm lint        # Biome
 ```
 
-Node runs the TypeScript in `src/` directly, so there is no build step. [AGENTS.md](./AGENTS.md) explains how the pieces fit together.
+Node and Bun both run the TypeScript in `src/` directly, so there is no build step. [AGENTS.md](./AGENTS.md) explains how the pieces fit together.
 
 ## Contributing
 
