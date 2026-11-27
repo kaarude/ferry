@@ -55,7 +55,7 @@ body:
       label: Environment and version
       description: How you run Ferry, your Node.js version, the Ferry version or commit, and whether the AI duplicate check is on.
       placeholder: |
-        - Runs on: Docker / pnpm start on Ubuntu 24.04 / ...
+        - Runs on: Docker / pnpm start on Ubuntu 24.04 / bun run start:bun / ...
         - Node.js: 24.x
         - Ferry version or commit: v0.1.0 or main @ abc1234
         - AI duplicate check: on (claude-opus-5-5) / off

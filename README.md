@@ -70,9 +70,9 @@ Then start it with the runtime you have:
 | Bun            | `bun install` then `bun run start:bun` |
 | Docker         | `docker compose up -d`                 |
 
-Node reads only `.env`, through the `--env-file-if-exists` flag in the `start` script. Bun reads `.env` on its own, and also `.env.local` if you have one. Both runtimes use the same SQLite file, so you can switch later without losing anything, as long as `DATABASE_PATH` stays the same.
+Node reads only `.env`, through the `--env-file-if-exists` flag in the `start` script. Bun reads `.env` on its own, plus `.env.local` and `.env.production` (or whatever matches `NODE_ENV`) if they exist. Both runtimes use the same SQLite file, so you can switch later without losing anything. Before you switch, check that `DATABASE_PATH` still points at the same file.
 
-`pnpm install` uses the tested versions in `pnpm-lock.yaml`. Bun 1.3 can't read that lockfile, so `bun install` picks its own versions of indirect dependencies. Ferry's direct dependencies are pinned exactly, so this rarely matters, but if something breaks only on Bun, mention it in your bug report.
+`pnpm install` uses the tested versions in `pnpm-lock.yaml`. Bun 1.3.14 doesn't read Ferry's lockfile, so `bun install` picks its own versions of indirect dependencies. Ferry's direct dependencies are pinned exactly, so this rarely matters. For the exact tested versions on Bun, run `pnpm install --frozen-lockfile` and then `bun run start:bun`.
 
 ### 4. Connect your server
 
